@@ -1,39 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[45]:
-
-
-get_ipython().system('pip install SpeechRecognition')
-get_ipython().system('pip install pyaudio')
-get_ipython().system('pip install editdistance')
-get_ipython().system('pip install gTTS')
-get_ipython().system('pip install sklearn')
-get_ipython().system('pip install nltk')
-# sudo apt install portaudio19-dev python3-pyaudio
-# sudo apt-get install portaudio19-dev python-pyaudio python3-pyaudio
-#!sudo apt update && sudo apt install espeak ffmpeg libespeak1 for offline text_to_voice convert
-
-
-# In[28]:
-
-
-import pyttsx3
-# initialize Text-to-speech engine
-engine = pyttsx3.init()
-# setting new voice rate (faster)
-engine.setProperty("rate", 150)
-
-# convert this text to speech
-
-text = "Hello, Kondo"
-
-engine.say(text)
-# play the speech
-engine.runAndWait()
-
-
-# In[29]:
 
 
 import speech_recognition as sr
@@ -42,7 +9,7 @@ import speech_recognition as sr
 r = sr.Recognizer()
 
 
-# In[30]:
+# In[2]:
 
 
 with sr.Microphone() as source:
@@ -55,7 +22,7 @@ with sr.Microphone() as source:
     print(text)
 
 
-# In[32]:
+# In[3]:
 
 
 import io
@@ -63,8 +30,6 @@ import random
 import string
 import warnings
 import numpy as np
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 import warnings
 from gtts import gTTS
 import os
@@ -79,7 +44,7 @@ nltk.download('punkt')
 nltk.download('wordnet')
 
 
-# In[33]:
+# In[4]:
 
 
 posts = nltk.corpus.nps_chat.xml_posts()[:10000]
@@ -95,7 +60,7 @@ train_set, test_set = featuresets[size:], featuresets[:size]
 classifier = nltk.NaiveBayesClassifier.train(train_set)
 
 
-# In[34]:
+# In[5]:
 
 
 # Keyword Matching
@@ -108,7 +73,7 @@ def greeting(sentence):
             return random.choice(GREETING_RESPONSES)
 
 
-# In[35]:
+# In[6]:
 
 
 #Reading in the input_corpus
@@ -127,7 +92,7 @@ def LemNormalize(text):
     return LemTokens(nltk.word_tokenize(text.lower().translate(remove_punct_dict)))
 
 
-# In[36]:
+# In[7]:
 
 
 #colour palet
@@ -141,29 +106,13 @@ def prLightGray(skk): print("\033[97m {}\033[00m" .format(skk))
 def prBlack(skk): print("\033[98m {}\033[00m" .format(skk))
 
 
-# In[37]:
+# In[ ]:
 
 
-# Generating response and processing 
-def response(user_response):
-    robo_response=''
-    sent_tokens.append(user_response)
-    TfidfVec = TfidfVectorizer(tokenizer=LemNormalize, stop_words='english')
-    tfidf = TfidfVec.fit_transform(sent_tokens)
-    vals = cosine_similarity(tfidf[-1], tfidf)
-    idx=vals.argsort()[0][-2]
-    flat = vals.flatten()
-    flat.sort()
-    req_tfidf = flat[-2]
-    if(req_tfidf==0):
-        robo_response=robo_response+"I am sorry! I don't understand you"
-        return robo_response
-    else:
-        robo_response = robo_response+sent_tokens[idx]
-        return robo_response
 
 
-# In[38]:
+
+# In[8]:
 
 
 #Recording voice input using microphone 
@@ -177,14 +126,14 @@ r = sr.Recognizer()
 prYellow(fst)
 
 
-# In[1]:
+# In[4]:
 
 
 # Yandex music API
 get_ipython().system('pip install yandex-music --upgrade')
 
 
-# In[5]:
+# In[9]:
 
 
 from yandex_music import Client
@@ -192,7 +141,7 @@ from yandex_music import Client
 client = Client("y0_AgAAAAAqvlDlAAiJcgAAAADSicCfF-W6WmPOSTaafBFgACMr9Eq5wU4").init()
 
 
-# In[65]:
+# In[10]:
 
 
 client.tracks(['10994777:1193829', '40133452:5206873', '48966383:6693286', '51385674:7163467'])[0]
@@ -200,7 +149,7 @@ client.tracks(['10994777:1193829', '40133452:5206873', '48966383:6693286', '5138
 client.search("Birds")["best"]["result"]["id"]#.download(filename="1.mpg")
 
 
-# In[67]:
+# In[11]:
 
 
 from playsound import playsound
@@ -219,13 +168,13 @@ def play_music_by_name(name):
 play_music_by_name("Closed")
 
 
-# In[83]:
+# In[8]:
 
 
 client.search("closed")["best"]["result"]["id"]
 
 
-# In[86]:
+# In[12]:
 
 
 nothing  = lambda x:None
@@ -234,13 +183,29 @@ key_words_command = {"music":commands["Play music"]}
 key_words_command["music"](1)
 
 
-# In[68]:
+# 
+
+# In[13]:
 
 
 # "music Tokyo Drift".find("music")
+mp3_nameold='111'
+mp3_name = "txt.mp3"
+def say_and_wait(txt):
+            tts=gTTS(text=txt, lang='ru')
+            # Получаем от гугла озвученное предложение в виде mp3 файла           
+            tts.save(mp3_name)
+            # Проигрываем полученный mp3 файл
+            playsound(mp3_name)
+            # Если предыдущий mp3 файл существует удаляем его
+            # чтобы не захламлять папку с приложением кучей mp3 файлов
+            if(os.path.exists(mp3_nameold) and (mp3_nameold!="1.mp3")):
+                os.remove(mp3_nameold)
+            mp3_nameold=mp3_name
 
 
-# In[85]:
+
+# In[15]:
 
 
 while(flag==True):
@@ -264,50 +229,29 @@ while(flag==True):
             flag=False
             text = "Kondo: You are welcome.."
             prYellow(text)
-            engine.say(text)
-            engine.runAndWait()
+            say_and_wait(text)
+        
                 
         else:
             if(greeting(user_response)!=None):
 
                 text = greeting(user_response) 
                 
-                engine.say(text)
-                engine.runAndWait()
+                say_and_wait(text)
+                
                 print("\033[93m {}\033[00m" .format("Kondo: "+ text))
             else:
                 print("\033[93m {}\033[00m" .format("Kondo: ",end=""))
-                res=(response(user_response))
-                engine.say(res)
-                engine.runAndWait()
-                prYellow(res)
+                # res=(response(user_response))
+                say_and_wait("Goodbue")
                 sent_tokens.remove(user_response)
-                tts = gTTS(res, 'en')
+                tts = gTTS("Goodbye", 'en')
                 tts.save(file)
                 os.system("mpg123 " + file)
     else:
         flag=False
         text = "Kondo: Bye! take care.."
         prYellow(text)
-        engine.say(text)
+        say_and_wait(text)
         # play the speech
-        engine.runAndWait()
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
-
-
-# In[ ]:
-
-
-
 
